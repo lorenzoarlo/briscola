@@ -1,5 +1,6 @@
 using Briscola.Controller.GameHub;
 using Briscola.View.CLI.Io;
+using Briscola.View.Resources;
 
 namespace Briscola.View.CLI;
 
@@ -29,11 +30,11 @@ public class CLIGameHubView
             Console.Clear();
             RenderHeader();
 
-            Console.WriteLine("1. Start 1v1 Match");
-            Console.WriteLine("2. Start 2v2 Match");
-            Console.WriteLine("3. Quit");
+            Console.WriteLine(Messages.Menu_Start1v1);
+            Console.WriteLine(Messages.Menu_Start2v2);
+            Console.WriteLine(Messages.Menu_Quit);
             Console.WriteLine();
-            Console.Write("Choose an option: ");
+            Console.Write(Messages.Menu_ChooseOption);
 
             var input = Console.ReadLine();
 
@@ -47,10 +48,10 @@ public class CLIGameHubView
                     break;
                 case "3":
                     isRunning = false;
-                    Console.WriteLine(IoUtilities.Colorize("Goodbye! :)", AnsiColors.FgGreen));
+                    Console.WriteLine(IoUtilities.Colorize(Messages.Msg_Goodbye, AnsiColors.FgGreen));
                     break;
                 default:
-                    Console.WriteLine(IoUtilities.Colorize("Invalid choice. Please press Enter and try again.", AnsiColors.FgBrightRed));
+                    Console.WriteLine(IoUtilities.Colorize(Messages.Msg_InvalidChoice, AnsiColors.FgBrightRed));
                     Console.ReadLine();
                     break;
             }
@@ -63,7 +64,7 @@ public class CLIGameHubView
     private async Task Start1v1SetupAsync(CancellationToken ct)
     {
         Console.Clear();
-        Console.WriteLine(IoUtilities.Colorize("--- 1v1 Match Setup ---", AnsiColors.FgCyan));
+        Console.WriteLine(IoUtilities.Colorize(Messages.Setup_1v1Header, AnsiColors.FgCyan));
         Console.WriteLine();
 
         var player1Config = PromptForPlayerConfig(1);
@@ -71,14 +72,14 @@ public class CLIGameHubView
         var player2Config = PromptForPlayerConfig(2);
 
         Console.Clear();
-        Console.WriteLine(IoUtilities.Colorize("Starting game...", AnsiColors.FgGreen));
+        Console.WriteLine(IoUtilities.Colorize(Messages.Setup_StartingGame, AnsiColors.FgGreen));
 
         // Let the controller build and run the match
         var game = await _gameHub.StartGame1v1Async(player1Config, player2Config, ct);
 
         // After the game loop is fully complete, wait for the user to acknowledge before returning to the main menu
         Console.WriteLine();
-        Console.WriteLine(IoUtilities.Colorize("Press Enter to return to the main menu...", AnsiColors.FgCyan));
+        Console.WriteLine(IoUtilities.Colorize(Messages.Msg_PressEnterToReturn, AnsiColors.FgCyan));
         Console.ReadLine();
     }
 
@@ -89,14 +90,14 @@ public class CLIGameHubView
     /// <returns>A configured PlayerConfig instance.</returns>
     private PlayerConfig PromptForPlayerConfig(int playerNumber)
     {
-        Console.WriteLine($"Configuring Player {playerNumber}:");
+        Console.WriteLine(string.Format(Messages.Setup_ConfiguringPlayer, playerNumber));
 
         // 1. Prompt for Name
-        Console.Write("  Enter name (leave blank for default): ");
+        Console.Write(Messages.Setup_EnterName);
         string name = Console.ReadLine()?.Trim() ?? string.Empty;
         if (string.IsNullOrEmpty(name))
         {
-            name = $"Player {playerNumber}";
+            name = string.Format(Messages.Setup_DefaultPlayerName, playerNumber);
         }
 
         // 2. Prompt for Strategy
@@ -106,13 +107,13 @@ public class CLIGameHubView
 
         while (!validStrategy)
         {
-            Console.WriteLine("  Choose strategy:");
+            Console.WriteLine(Messages.Setup_ChooseStrategy);
             for (int i = 0; i < strategies.Count; i++)
             {
                 Console.WriteLine($"    {i + 1}. {strategies.ElementAt(i).Name}");
             }
 
-            Console.Write("  Choice: ");
+            Console.Write(Messages.Setup_Choice);
             var input = Console.ReadLine();
 
             if (int.TryParse(input, out int choice) && choice >= 1 && choice <= strategies.Count)
@@ -122,7 +123,7 @@ public class CLIGameHubView
             }
             else
             {
-                Console.WriteLine(IoUtilities.Colorize("  Invalid choice. Please select a valid strategy number.", AnsiColors.FgBrightRed));
+                Console.WriteLine(IoUtilities.Colorize(Messages.Setup_InvalidStrategy, AnsiColors.FgBrightRed));
             }
         }
 
@@ -135,8 +136,8 @@ public class CLIGameHubView
     private void ShowNotImplemented(string featureName)
     {
         Console.Clear();
-        Console.WriteLine(IoUtilities.Colorize($"{featureName} is planned but not yet implemented.", AnsiColors.FgMagenta));
-        Console.WriteLine("Press Enter to return to the main menu...");
+        Console.WriteLine(IoUtilities.Colorize(string.Format(Messages.Msg_NotImplemented, featureName), AnsiColors.FgMagenta));
+        Console.WriteLine(Messages.Msg_PressEnterToReturn);
         Console.ReadLine();
     }
 

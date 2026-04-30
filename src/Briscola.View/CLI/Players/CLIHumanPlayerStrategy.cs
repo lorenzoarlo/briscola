@@ -3,6 +3,7 @@ using Briscola.Domain.Entities;
 using Briscola.Domain.Enums;
 using Briscola.View.CLI.Io;
 using Briscola.View.CLI.Utils;
+using Briscola.View.Resources;
 
 namespace Briscola.View.CLI.Players;
 
@@ -27,14 +28,14 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
     /// </summary>
     /// <param name="context"></param>
     /// <param name="self"></param>
-    /// <param name="subheader"></param>
+    /// <param name="subheader">The subheader is passed here because it displays a different message based on which phase of the game we are in.</param>
     private void RenderView(GameSnapshot context, Player self, string subheader)
     {
         // Clean the screen before rendering the new view
         Console.Clear();
 
         Header(context, self);
-        Subheader(context, subheader);
+        Subheader(context, self, subheader);
 
         Body(context, self);
 
@@ -45,7 +46,7 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
 
     public override Task<Card> ChooseCardAsync(Player self, PlayerStateSnapshot state, GameSnapshot context, CancellationToken ct = default)
     {
-        RenderView(context, self, "It's your turn!");
+        RenderView(context, self, Messages.Status_YourTurn);
         return Task.FromResult(PromptForCard(_slots)); ;
     }
 
@@ -57,8 +58,8 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
         if (activePlayer != null)
         {
             string subheader = activePlayer.Id == self.Id
-                ? IoUtilities.Colorize("It's your turn!", AnsiColors.FgGreen)
-                : IoUtilities.Colorize($"It's the turn of {activePlayer.Name}...", AnsiColors.FgYellow);
+                ? IoUtilities.Colorize(Messages.Status_YourTurn, AnsiColors.FgGreen)
+                : IoUtilities.Colorize(string.Format(Messages.Status_TurnOf, activePlayer.Name), AnsiColors.FgYellow);
 
             RenderView(context, self, subheader);
         }
@@ -71,11 +72,11 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
         if (player.Id == self.Id)
         {
             _slots.Play(card);
-            AddNotification($"You played {CardRenderer.Format(card)}");
+            AddNotification(string.Format(Messages.Notify_YouPlayed, CardRenderer.Format(card)));
         }
         else
         {
-            AddNotification($"{player.Name} played {CardRenderer.Format(card)}");
+            AddNotification(string.Format(Messages.Notify_PlayerPlayed, player.Name, CardRenderer.Format(card)));
         }
 
         var trick = context.CurrentTrick;
@@ -87,7 +88,7 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
             return;
         }
 
-        RenderView(context, self, $"It's the turn of {activePlayer.Name}...");
+        RenderView(context, self, string.Format(Messages.Status_TurnOf, activePlayer.Name));
         await Task.Delay(1000, ct); // Delay to allow the player to see the opponent's move before the next prompt appears
     }
 
@@ -95,8 +96,8 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
     {
         var pts = cards.Sum(c => c.Points);
 
-        AddNotification($"Trick won by {winner.Name} (earned {pts} points)");
-        RenderView(context, self, $"Trick won by {winner.Name}!");
+        AddNotification(string.Format(Messages.Notify_TrickWonBy, winner.Name, pts));
+        RenderView(context, self, string.Format(Messages.Status_TrickWonBy, winner.Name));
 
         await Task.Delay(1500, ct); // Delay to allow the player to see the trick result before the next prompt appears
     }
@@ -104,22 +105,22 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
     public override Task OnCardDrawnAsync(Card card, GameSnapshot context, CancellationToken ct = default)
     {
         _slots.Draw(card);
-        AddNotification($"You've drawn {card.Value} of {card.Suit}");
+        AddNotification(string.Format(Messages.Notify_YouDrawn, card.Value, card.Suit));
         return Task.CompletedTask;
     }
 
-    public static readonly string WIN_MESSAGE = IoUtilities.Colorize("You've won!", AnsiColors.FgGreen);
+    public static readonly string WIN_MESSAGE = IoUtilities.Colorize(Messages.Match_Win, AnsiColors.FgGreen);
 
-    public static readonly string LOSE_MESSAGE = IoUtilities.Colorize("You've lost!", AnsiColors.FgBrightRed);
+    public static readonly string LOSE_MESSAGE = IoUtilities.Colorize(Messages.Match_Lose, AnsiColors.FgBrightRed);
 
-    public static readonly string TIE_MESSAGE = IoUtilities.Colorize("It's a tie!", AnsiColors.FgYellow);
+    public static readonly string TIE_MESSAGE = IoUtilities.Colorize(Messages.Match_Tie, AnsiColors.FgYellow);
 
 
     public override Task OnMatchEndedAsync(GameResult result, int teamIndex, IReadOnlyDictionary<Player, int> scores, CancellationToken ct = default)
     {
         Console.Clear();
 
-        Console.WriteLine(IoUtilities.Colorize("Match Ended! ", AnsiColors.FgBrightMagenta));
+        Console.WriteLine(IoUtilities.Colorize(Messages.Match_Ended, AnsiColors.FgBrightMagenta));
 
         Console.WriteLine(result switch
         {
@@ -133,7 +134,7 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
         {
             var player = kvp.Key;
             var points = kvp.Value;
-            Console.WriteLine($"- {player.Name}: {points} points");
+            Console.WriteLine(string.Format(Messages.Match_ScoreLine, player.Name, points));
         }
 
         return Task.CompletedTask;
@@ -143,24 +144,33 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
     private static void Header(GameSnapshot context, Player _)
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine($"Briscola match (Turn number {context.Tricks.Count})");
+        Console.WriteLine(string.Format(Messages.Header_MatchInfo, context.Tricks.Count));
         Console.ResetColor();
     }
 
-    private static void Subheader(GameSnapshot context, string subheader)
+    /// <summary>
+    /// Renders the subheader, showing the last trick summary if available, and the current phase's subheader.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="self"></param>
+    /// <param name="subheader">The subheader is passed here because it displays a different message based on which phase of the game we are in.</param>
+    private static void Subheader(GameSnapshot context, Player _, string subheader)
     {
         // Last trick summary (if applicable)
-        var last = context.Tricks.ElementAtOrDefault(-2);
-        if (last != null && last.Winner != null)
+        // If there are more than 1 trick, it means we have completed at least one trick and we can show the summary of the last one
+        if (context.Tricks.Count > 1)
         {
-            var details = string.Join(',', last.PlayOrder.Select(p => CardRenderer.Format(last.CardOfPlayer(p))));
+            var last = context.Tricks.ElementAt(context.Tricks.Count - 1 - 1); // The last completed trick is the one before the last
+            if (last != null && last.Winner != null)
+            {
+                var details = string.Join(", ", last.PlayOrder.Select(p => CardRenderer.Format(last.CardOfPlayer(p))));
 
-            int points = last.TrickCards.Sum(c => c.Points);
+                int points = last.TrickCards.Sum(c => c.Points);
 
-            // Costruisci la stringa di riepilogo
-            string summary = $"> {details} and {last.Winner.Name} won {points} pts";
+                string summary = string.Format(Messages.Match_TrickSummary, details, last.Winner.Name, points);
 
-            Console.WriteLine(IoUtilities.Colorize(summary, AnsiColors.FgGray));
+                Console.WriteLine(IoUtilities.Colorize(summary, AnsiColors.FgGray));
+            }
         }
         // Subheader
         Console.WriteLine(subheader);
@@ -169,7 +179,7 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
 
     private static void Body(GameSnapshot context, Player _)
     {
-        Console.Write($"Deck ({context.DeckCount} cards), Briscola is ");
+        Console.Write(string.Format(Messages.Label_Deck, context.DeckCount));
         if (context.BriscolaCard != null)
         {
             CardRenderer.Write(context.BriscolaCard);
@@ -177,10 +187,10 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
         }
         else
         {
-            Console.WriteLine($"{context.BriscolaSuit} [x]");
+            Console.WriteLine($"{CardRenderer.Format(context.BriscolaSuit)} [x]");
         }
 
-        Console.WriteLine("Table:");
+        Console.WriteLine(Messages.Label_Table);
         var trick = context.CurrentTrick;
         if (trick != null)
         {
@@ -200,14 +210,14 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
     {
         foreach (var note in notifications)
         {
-            Console.WriteLine(IoUtilities.Colorize($"> {note}", AnsiColors.FgWhite));
+            Console.WriteLine(IoUtilities.Colorize($"> {note}", AnsiColors.FgGray));
         }
     }
 
 
     private static Card PromptForCard(HandSlots _slots)
     {
-        Console.WriteLine("Choose your card:");
+        Console.WriteLine(Messages.Label_ChooseCard);
         for (int i = 0; i < _slots.View.Count; i++)
         {
             Console.Write($"{i + 1}. ");
@@ -220,7 +230,7 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
 
         while (true)
         {
-            Console.Write("Choice: ");
+            Console.Write(Messages.Label_Choice);
             var input = Console.ReadLine();
             if (int.TryParse(input, out int choice) && choice >= 1 && choice <= _slots.View.Count)
             {
@@ -232,7 +242,7 @@ public class CLIHumanPlayerStrategy : PlayerStrategy
             }
 
             // error
-            Console.WriteLine(IoUtilities.Colorize("Invalid choice. Must be a valid slot number and non-empty.", AnsiColors.FgBrightRed));
+            Console.WriteLine(IoUtilities.Colorize(Messages.Error_InvalidChoice, AnsiColors.FgBrightRed));
         }
     }
 
