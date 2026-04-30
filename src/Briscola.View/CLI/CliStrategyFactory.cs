@@ -5,10 +5,10 @@ using Briscola.View.CLI.Players;
 
 namespace Briscola.View.CLI;
 
-public class CLIStrategyFactory : PlayerStrategyFactory
+public class CliStrategyFactory : PlayerStrategyFactory
 {
     public static IReadOnlyCollection<StrategyType> CLISupportedStrategies => [
-        CLIStrategyType.CLIHumanPlayer
+        CliStrategyType.CliHumanPlayer
     ];
     public override IReadOnlyCollection<StrategyType> SupportedStrategies => [.. base.SupportedStrategies.Concat(CLISupportedStrategies)];
 

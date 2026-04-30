@@ -7,7 +7,7 @@ using Briscola.View.Resources;
 
 namespace Briscola.View.CLI.Players;
 
-public class CLIHumanPlayerStrategy : PlayerStrategy
+public class CliHumanPlayerStrategy : PlayerStrategy
 {
     public override string Type => "CLIHuman";
 

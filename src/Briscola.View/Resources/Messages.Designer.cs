@@ -193,7 +193,7 @@ namespace Briscola.View.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 3. Quit.
+        ///   Looks up a localized string similar to Quit.
         /// </summary>
         internal static string Menu_Quit {
             get {
@@ -202,7 +202,7 @@ namespace Briscola.View.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1. Start 1v1 Match.
+        ///   Looks up a localized string similar to Start 1v1 Match.
         /// </summary>
         internal static string Menu_Start1v1 {
             get {
@@ -211,7 +211,7 @@ namespace Briscola.View.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 2. Start 2v2 Match.
+        ///   Looks up a localized string similar to Start 2v2 Match.
         /// </summary>
         internal static string Menu_Start2v2 {
             get {

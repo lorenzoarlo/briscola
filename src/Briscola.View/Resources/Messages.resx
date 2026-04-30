@@ -160,13 +160,13 @@
     <value>Choose an option: </value>
   </data>
   <data name="Menu_Quit" xml:space="preserve">
-    <value>3. Quit</value>
+    <value>Quit</value>
   </data>
   <data name="Menu_Start1v1" xml:space="preserve">
-    <value>1. Start 1v1 Match</value>
+    <value>Start 1v1 Match</value>
   </data>
   <data name="Menu_Start2v2" xml:space="preserve">
-    <value>2. Start 2v2 Match</value>
+    <value>Start 2v2 Match</value>
   </data>
   <data name="Msg_Goodbye" xml:space="preserve">
     <value>Goodbye! :)</value>
@@ -197,13 +197,13 @@ Application terminated. Press any key to exit...</value>
     <value>You played {0}</value>
   </data>
   <data name="Setup_1v1Header" xml:space="preserve">
-    <value>--- 1v1 Match Setup ---</value>
+    <value>1v1 Match Setup</value>
   </data>
   <data name="Setup_Choice" xml:space="preserve">
-    <value>  Choice: </value>
+    <value>Choice: </value>
   </data>
   <data name="Setup_ChooseStrategy" xml:space="preserve">
-    <value>  Choose strategy:</value>
+    <value>Choose strategy:</value>
   </data>
   <data name="Setup_ConfiguringPlayer" xml:space="preserve">
     <value>Configuring Player {0}:</value>
@@ -212,10 +212,10 @@ Application terminated. Press any key to exit...</value>
     <value>Player {0}</value>
   </data>
   <data name="Setup_EnterName" xml:space="preserve">
-    <value>  Enter name (leave blank for default): </value>
+    <value>Enter name (leave blank for default): </value>
   </data>
   <data name="Setup_InvalidStrategy" xml:space="preserve">
-    <value>  Invalid choice. Please select a valid strategy number.</value>
+    <value>Invalid choice. Please select a valid strategy number.</value>
   </data>
   <data name="Setup_StartingGame" xml:space="preserve">
     <value>Starting game...</value>

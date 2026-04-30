@@ -1,9 +1,8 @@
 using Briscola.View.CLI;
 using Briscola.View.Resources;
 
-// Setup of the cancellation token to handle graceful shutdown (e.g., Ctrl+C)
 using var cts = new CancellationTokenSource();
-Console.CancelKeyPress += (s, e) =>
+Console.CancelKeyPress += (_, e) =>
 {
     e.Cancel = true;
     cts.Cancel();
@@ -12,7 +11,7 @@ Console.CancelKeyPress += (s, e) =>
 try
 {
     // Initialize the CLI Game Hub
-    var hub = new CLIGameHubView();
+    var hub = new CliGameHubView();
 
     // Run the main application loop
     await hub.RunAsync(cts.Token);
@@ -24,7 +23,7 @@ catch (OperationCanceledException)
 catch (Exception ex)
 {
     Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine(string.Format(Messages.Error_Unexpected, ex.Message));
+    Console.WriteLine(Messages.Error_Unexpected, ex.Message);
     Console.ResetColor();
 }
 finally
