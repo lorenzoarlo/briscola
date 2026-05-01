@@ -31,7 +31,7 @@ public class Trick
     /// <summary>Plays a card for a player.</summary>
     public void PlayCard(Player player, Card card)
     {
-        if (player != _players[_currentPlayerIndex])
+        if (!player.Equals(_players[_currentPlayerIndex]))
         {
             throw new InvalidOperationException("It's not this player's turn to play.");
         }

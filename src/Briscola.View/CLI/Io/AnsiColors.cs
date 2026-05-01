@@ -1,3 +1,5 @@
+namespace Briscola.View.CLI.Io;
+
 internal enum AnsiColors
 {
     Reset,

@@ -55,7 +55,7 @@ internal static class SuitLocalizedExtensions
         Suit.Cups => Messages.Suit_Cups,
         Suit.Swords => Messages.Suit_Swords,
         Suit.Clubs => Messages.Suit_Clubs,
-        _ => throw new ArgumentOutOfRangeException(nameof(suit), "Unexpected suit value")
+        _ => throw new ArgumentOutOfRangeException(nameof(suit), @"Unexpected suit value")
     };
 }
 
@@ -75,7 +75,7 @@ internal static class CardValueLocalizedExtensions
         CardValue.Jack => Messages.Value_Jack,
         CardValue.Knight => Messages.Value_Knight,
         CardValue.King => Messages.Value_King,
-        _ => throw new ArgumentOutOfRangeException(nameof(value), "Unexpected card value")
+        _ => throw new ArgumentOutOfRangeException(nameof(value), @"Unexpected card value")
     };
 }
 

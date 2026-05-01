@@ -142,7 +142,7 @@
     <value>Match Ended! </value>
   </data>
   <data name="Match_Lose" xml:space="preserve">
-    <value>You've lost!</value>
+    <value>{0}, you've lost!</value>
   </data>
   <data name="Match_ScoreLine" xml:space="preserve">
     <value>- {0}: {1} points</value>
@@ -167,6 +167,9 @@
   </data>
   <data name="Menu_Start2v2" xml:space="preserve">
     <value>Start 2v2 Match</value>
+  </data>
+  <data name="Menu_StartHumanvCpuPreset" xml:space="preserve">
+    <value>Start Human vs Random match</value>
   </data>
   <data name="Msg_Goodbye" xml:space="preserve">
     <value>Goodbye! :)</value>

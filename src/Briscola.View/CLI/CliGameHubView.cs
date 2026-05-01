@@ -14,6 +14,7 @@ public class CliGameHubView
 
     private bool _isRunning = true;
 
+
     /// <summary>
     /// Starts the main application loop, displaying the main menu and handling user choices.
     /// </summary>
@@ -24,21 +25,23 @@ public class CliGameHubView
         {
             Console.Clear();
             RenderHeader();
-            
+
             List<(string, Func<CancellationToken, Task>)> options =
             [
                 (Messages.Menu_Start1v1, Start1V1SetupAsync),
+                (Messages.Menu_StartHumanvCpuPreset, token => Start1V1PresetAsync(CliStrategyType.CliHumanPlayer, StrategyType.Random, token)),
                 (Messages.Menu_Quit, QuitAsync)
             ];
-            
-            var builder =  new StringBuilder();
+
+            var builder = new StringBuilder();
             for (var i = 0; i < options.Count; i++)
             {
                 builder.AppendLine($"{i + 1}. {options.ElementAt(i).Item1}");
             }
+
             builder.Append(Messages.Menu_ChooseOption);
-            
-            var choice = AskForChoice(builder.ToString(), 1,  options.Count);
+
+            var choice = AskForChoice(builder.ToString(), 1, options.Count);
             await options.ElementAt(choice - 1).Item2(ct);
         }
     }
@@ -62,9 +65,28 @@ public class CliGameHubView
         Console.WriteLine(IoUtilities.Colorize(Messages.Setup_StartingGame, AnsiColors.FgGreen));
 
         // Let the controller build and run the match
-        await _gameHub.StartGame1v1Async(player1Config, player2Config, ct);
+        await _gameHub.StartGame1V1Async(player1Config, player2Config, ct);
 
         // After the game loop is fully complete, wait for the user to acknowledge before returning to the main menu
+        Console.WriteLine();
+        Console.WriteLine(IoUtilities.Colorize(Messages.Msg_PressEnterToReturn, AnsiColors.FgCyan));
+        Console.ReadLine();
+    }
+
+    /// <summary>
+    /// Handles the setup flow for a 1v1 match, prompting for player configurations and starting the game.
+    /// </summary>
+    private async Task Start1V1PresetAsync(StrategyType a, StrategyType b, CancellationToken ct)
+    {
+        // Randomly assign first config
+        var first = Random.Shared.Next(2) == 1;
+
+        var player1Config = new PlayerConfig("Player 1", first ? a : b);
+        var player2Config = new PlayerConfig("Player 2", first ? b : a);
+        
+        // Let the controller build and run the match
+        await _gameHub.StartGame1V1Async(player1Config, player2Config, ct);
+        
         Console.WriteLine();
         Console.WriteLine(IoUtilities.Colorize(Messages.Msg_PressEnterToReturn, AnsiColors.FgCyan));
         Console.ReadLine();
@@ -114,7 +136,7 @@ public class CliGameHubView
 
         return new PlayerConfig(name, selectedStrategy);
     }
-    
+
     /// <summary>
     /// Renders the main menu header.
     /// </summary>
@@ -123,7 +145,7 @@ public class CliGameHubView
         Console.WriteLine(IoUtilities.Colorize("Welcome to the Briscola CLI!", AnsiColors.FgBrightMagenta));
         Console.WriteLine();
     }
-    
+
     /// <summary>
     /// Utility method to ask the user for a number within a specified range, with validation and error feedback.
     /// </summary>
@@ -140,15 +162,15 @@ public class CliGameHubView
             var input = Console.ReadLine();
 
             ok = int.TryParse(input, out var number);
-            
+
             if (ok && number >= min && number <= max)
             {
                 return number;
             }
+
             Console.WriteLine(IoUtilities.Colorize(Messages.Msg_InvalidChoice, AnsiColors.FgBrightRed));
         }
 
         return -1;
     }
-
 }

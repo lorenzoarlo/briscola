@@ -6,13 +6,9 @@ namespace Briscola.Domain.Entities;
 public class Deck
 {
     // Internal stack to manage the cards in the deck
-    private readonly Stack<Card> _cards;
+    // Shuffle immediately
+    private readonly Stack<Card> _cards = new(Shuffle(Create()));
 
-    public Deck()
-    {
-        // Shuffle immediately
-        _cards = new Stack<Card>(Shuffle(Create()));
-    }
 
     /// <summary>Number of cards remaining.</summary>
     public int Count => _cards.Count;
@@ -50,6 +46,6 @@ public class Deck
     }
 
     /// <summary>Shuffles the collection of cards.</summary>
-    public static IEnumerable<Card> Shuffle(IEnumerable<Card> cards) => cards.OrderBy(x => Random.Shared.Next());
+    public static IEnumerable<Card> Shuffle(IEnumerable<Card> cards) => cards.OrderBy(_ => Random.Shared.Next());
 
 }

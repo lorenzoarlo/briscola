@@ -5,6 +5,7 @@ using var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) =>
 {
     e.Cancel = true;
+    // ReSharper disable once AccessToDisposedClosure
     cts.Cancel();
 };
 

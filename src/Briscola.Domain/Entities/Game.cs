@@ -122,7 +122,7 @@ public abstract class Game
         State = GameState.TrickEnd;
 
         var trick = CurrentTrick!;
-        var winner = trick.Winner()!;
+        var winner = trick.Winner();
         var cards = trick.TrickCards;
 
         winner.CaptureCards(cards);

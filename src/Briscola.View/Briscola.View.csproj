@@ -14,11 +14,12 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Resources\Messages.resx">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <StronglyTypedClassName>Messages</StronglyTypedClassName>
       <StronglyTypedNamespace>Briscola.View.Resources</StronglyTypedNamespace>
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedFileName>Resources\Messages.Designer.cs</StronglyTypedFileName>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 

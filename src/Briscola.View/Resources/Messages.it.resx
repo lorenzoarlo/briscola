@@ -142,7 +142,7 @@
     <value>Partita Terminata! </value>
   </data>
   <data name="Match_Lose" xml:space="preserve">
-    <value>Hai perso!</value>
+    <value>{0}, hai perso!</value>
   </data>
   <data name="Match_ScoreLine" xml:space="preserve">
     <value>- {0}: {1} punti</value>
@@ -273,5 +273,8 @@ Applicazione terminata. Premi un tasto per uscire...</value>
   </data>
   <data name="CardFormat" xml:space="preserve">
     <value>{0} di {1}</value>
+  </data>
+  <data name="Menu_StartHumanvCpuPreset" xml:space="preserve">
+    <value>Inizia contro giocatore casuale </value>
   </data>
 </root>

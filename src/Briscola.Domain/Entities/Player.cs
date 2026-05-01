@@ -111,12 +111,11 @@ public sealed class Player(string id, string name, PlayerStrategy strategy) : IE
     {
         // if other is null or not a Player, return false
         if (o == null) { return false; }
-        if (o is not Player) { return false; }
-        return Equals((Player)o);
+        return o is Player player && Equals(player);
     }
 
     /// <summary>Returns the hash code of the player's identifier.</summary>
-    public override int GetHashCode() => Id is null ? 0 : Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     # endregion
 

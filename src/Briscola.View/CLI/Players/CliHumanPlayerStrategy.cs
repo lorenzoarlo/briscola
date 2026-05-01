@@ -1,4 +1,3 @@
-
 using Briscola.Domain.Entities;
 using Briscola.Domain.Enums;
 using Briscola.View.CLI.Io;
@@ -9,17 +8,20 @@ namespace Briscola.View.CLI.Players;
 
 public class CliHumanPlayerStrategy : PlayerStrategy
 {
+    // Maximumum number of notificati
+    private const int MaxNotifications = 3;
     public override string Type => "CLIHuman";
 
     private readonly HandSlots _slots = new();
+
     // Coda per gestire le notifiche nel footer (es. "Peschi X", "Mario gioca Y")
-    private readonly List<string> _notifications = new();
+    private readonly List<string> _notifications = [];
 
     private void AddNotification(string message)
     {
         _notifications.Add(message);
-        if (_notifications.Count > 3)
-            _notifications.RemoveAt(0); // Manteniamo solo le ultime 3 notifiche per non riempire lo schermo
+        if (_notifications.Count > MaxNotifications)
+            _notifications.RemoveAt(0);
     }
 
 
@@ -44,10 +46,11 @@ public class CliHumanPlayerStrategy : PlayerStrategy
         Footer(_notifications);
     }
 
-    public override Task<Card> ChooseCardAsync(Player self, PlayerStateSnapshot state, GameSnapshot context, CancellationToken ct = default)
+    public override Task<Card> ChooseCardAsync(Player self, PlayerStateSnapshot state, GameSnapshot context,
+        CancellationToken ct = default)
     {
         RenderView(context, self, Messages.Status_YourTurn);
-        return Task.FromResult(PromptForCard(_slots)); ;
+        return Task.FromResult(PromptForCard(_slots));
     }
 
     public override Task OnTrickStartedAsync(Player self, GameSnapshot context, CancellationToken ct = default)
@@ -67,7 +70,8 @@ public class CliHumanPlayerStrategy : PlayerStrategy
         return Task.CompletedTask;
     }
 
-    public override async Task OnCardPlayedAsync(Player self, Player player, Card card, GameSnapshot context, CancellationToken ct = default)
+    public override async Task OnCardPlayedAsync(Player self, Player player, Card card, GameSnapshot context,
+        CancellationToken ct = default)
     {
         if (player.Id == self.Id)
         {
@@ -89,10 +93,12 @@ public class CliHumanPlayerStrategy : PlayerStrategy
         }
 
         RenderView(context, self, string.Format(Messages.Status_TurnOf, activePlayer.Name));
-        await Task.Delay(1000, ct); // Delay to allow the player to see the opponent's move before the next prompt appears
+        await Task.Delay(1000,
+            ct); // Delay to allow the player to see the opponent's move before the next prompt appears
     }
 
-    public override async Task OnTrickCompletedAsync(Player self, Player winner, IEnumerable<Card> cards, GameSnapshot context, CancellationToken ct = default)
+    public override async Task OnTrickCompletedAsync(Player self, Player winner, IEnumerable<Card> cards,
+        GameSnapshot context, CancellationToken ct = default)
     {
         var pts = cards.Sum(c => c.Points);
 
@@ -109,32 +115,31 @@ public class CliHumanPlayerStrategy : PlayerStrategy
         return Task.CompletedTask;
     }
 
-    public static readonly string WIN_MESSAGE = IoUtilities.Colorize(Messages.Match_Win, AnsiColors.FgGreen);
+    private static readonly string WinMessage = IoUtilities.Colorize(Messages.Match_Win, AnsiColors.FgGreen);
 
-    public static readonly string LOSE_MESSAGE = IoUtilities.Colorize(Messages.Match_Lose, AnsiColors.FgBrightRed);
+    private static readonly string LoseMessage = IoUtilities.Colorize(Messages.Match_Lose, AnsiColors.FgBrightRed);
 
-    public static readonly string TIE_MESSAGE = IoUtilities.Colorize(Messages.Match_Tie, AnsiColors.FgYellow);
+    private static readonly string TieMessage = IoUtilities.Colorize(Messages.Match_Tie, AnsiColors.FgYellow);
 
 
-    public override Task OnMatchEndedAsync(GameResult result, int teamIndex, IReadOnlyDictionary<Player, int> scores, CancellationToken ct = default)
+    public override Task OnMatchEndedAsync(GameResult result, int teamIndex, IReadOnlyDictionary<Player, int> scores,
+        CancellationToken ct = default)
     {
         Console.Clear();
 
         Console.WriteLine(IoUtilities.Colorize(Messages.Match_Ended, AnsiColors.FgBrightMagenta));
-
+        
         Console.WriteLine(result switch
         {
-            GameResult.Tie => TIE_MESSAGE,
-            GameResult.WinTeam1 => teamIndex == 0 ? WIN_MESSAGE : LOSE_MESSAGE,
-            GameResult.WinTeam2 => teamIndex == 1 ? WIN_MESSAGE : LOSE_MESSAGE,
-            _ => throw new ArgumentOutOfRangeException(nameof(result), "Unexpected game result")
+            GameResult.Tie => TieMessage,
+            GameResult.WinTeam1 => teamIndex == 0 ? WinMessage : LoseMessage,
+            GameResult.WinTeam2 => teamIndex == 1 ? WinMessage : LoseMessage,
+            _ => throw new ArgumentOutOfRangeException(nameof(result), @"Unexpected game result")
         });
 
-        foreach (var kvp in scores)
+        foreach (var (player, points) in scores)
         {
-            var player = kvp.Key;
-            var points = kvp.Value;
-            Console.WriteLine(string.Format(Messages.Match_ScoreLine, player.Name, points));
+            Console.WriteLine(Messages.Match_ScoreLine, player.Name, points);
         }
 
         return Task.CompletedTask;
@@ -144,7 +149,7 @@ public class CliHumanPlayerStrategy : PlayerStrategy
     private static void Header(GameSnapshot context, Player _)
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(string.Format(Messages.Header_MatchInfo, context.Tricks.Count));
+        Console.WriteLine(Messages.Header_MatchInfo, context.Tricks.Count);
         Console.ResetColor();
     }
 
@@ -152,26 +157,28 @@ public class CliHumanPlayerStrategy : PlayerStrategy
     /// Renders the subheader, showing the last trick summary if available, and the current phase's subheader.
     /// </summary>
     /// <param name="context"></param>
-    /// <param name="self"></param>
+    /// <param name="_" />
     /// <param name="subheader">The subheader is passed here because it displays a different message based on which phase of the game we are in.</param>
     private static void Subheader(GameSnapshot context, Player _, string subheader)
     {
         // Last trick summary (if applicable)
-        // If there are more than 1 trick, it means we have completed at least one trick and we can show the summary of the last one
+        //  More than 1 trick, it means we have completed at least one trick, and we can show the summary of the last one
         if (context.Tricks.Count > 1)
         {
-            var last = context.Tricks.ElementAt(context.Tricks.Count - 1 - 1); // The last completed trick is the one before the last
-            if (last != null && last.Winner != null)
+            var last = context.Tricks.ElementAt(context.Tricks.Count - 1 -
+                                                1); // The last completed trick is the one before the last
+            if (last.Winner != null)
             {
                 var details = string.Join(", ", last.PlayOrder.Select(p => CardRenderer.Format(last.CardOfPlayer(p))));
 
-                int points = last.TrickCards.Sum(c => c.Points);
+                var points = last.TrickCards.Sum(c => c.Points);
 
-                string summary = string.Format(Messages.Match_TrickSummary, details, last.Winner.Name, points);
+                var summary = string.Format(Messages.Match_TrickSummary, details, last.Winner.Name, points);
 
                 Console.WriteLine(IoUtilities.Colorize(summary, AnsiColors.FgGray));
             }
         }
+
         // Subheader
         Console.WriteLine(subheader);
     }
@@ -179,30 +186,28 @@ public class CliHumanPlayerStrategy : PlayerStrategy
 
     private static void Body(GameSnapshot context, Player _)
     {
-        Console.Write(string.Format(Messages.Label_Deck, context.DeckCount));
+        Console.Write(Messages.Label_Deck, context.DeckCount);
         if (context.BriscolaCard != null)
         {
             CardRenderer.Write(context.BriscolaCard);
-            Console.WriteLine(" [✓]");
+            Console.WriteLine(@" [✓]");
         }
         else
         {
-            Console.WriteLine($"{CardRenderer.Format(context.BriscolaSuit)} [x]");
+            Console.WriteLine($@"{CardRenderer.Format(context.BriscolaSuit)} [x]");
         }
 
         Console.WriteLine(Messages.Label_Table);
         var trick = context.CurrentTrick;
-        if (trick != null)
+        if (trick == null) return;
+        // Enum index
+        var index = 1;
+        foreach (var player in trick.PlayOrder)
         {
-            // Enum index
-            int index = 1;
-            foreach (var player in trick.PlayOrder)
-            {
-                Console.Write($"{index}. ");
-                var cardOf = trick.CardOfPlayer(player);
-                CardRenderer.WriteLine(cardOf);
-                index++;
-            }
+            Console.Write($@"{index}. ");
+            var cardOf = trick.CardOfPlayer(player);
+            CardRenderer.WriteLine(cardOf);
+            index++;
         }
     }
 
@@ -215,26 +220,25 @@ public class CliHumanPlayerStrategy : PlayerStrategy
     }
 
 
-    private static Card PromptForCard(HandSlots _slots)
+    private static Card PromptForCard(HandSlots slots)
     {
         Console.WriteLine(Messages.Label_ChooseCard);
-        for (int i = 0; i < _slots.View.Count; i++)
+        for (int i = 0; i < slots.View.Count; i++)
         {
-            Console.Write($"{i + 1}. ");
-            var c = _slots.View[i];
+            Console.Write($@"{i + 1}. ");
+            var c = slots.View[i];
             CardRenderer.Write(c);
             Console.WriteLine();
         }
-
 
 
         while (true)
         {
             Console.Write(Messages.Label_Choice);
             var input = Console.ReadLine();
-            if (int.TryParse(input, out int choice) && choice >= 1 && choice <= _slots.View.Count)
+            if (int.TryParse(input, out int choice) && choice >= 1 && choice <= slots.View.Count)
             {
-                var selectedCard = _slots.View[choice - 1];
+                var selectedCard = slots.View[choice - 1];
                 if (selectedCard != null)
                 {
                     return selectedCard;
@@ -245,6 +249,4 @@ public class CliHumanPlayerStrategy : PlayerStrategy
             Console.WriteLine(IoUtilities.Colorize(Messages.Error_InvalidChoice, AnsiColors.FgBrightRed));
         }
     }
-
-
 }
