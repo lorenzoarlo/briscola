@@ -128,7 +128,7 @@ public class CliHumanPlayerStrategy : PlayerStrategy
         Console.Clear();
 
         Console.WriteLine(IoUtilities.Colorize(Messages.Match_Ended, AnsiColors.FgBrightMagenta));
-        
+
         Console.WriteLine(result switch
         {
             GameResult.Tie => TieMessage,
@@ -187,15 +187,9 @@ public class CliHumanPlayerStrategy : PlayerStrategy
     private static void Body(GameSnapshot context, Player _)
     {
         Console.Write(Messages.Label_Deck, context.DeckCount);
-        if (context.BriscolaCard != null)
-        {
-            CardRenderer.Write(context.BriscolaCard);
-            Console.WriteLine(@" [✓]");
-        }
-        else
-        {
-            Console.WriteLine($@"{CardRenderer.Format(context.BriscolaSuit)} [x]");
-        }
+
+        var tick = context.BriscolaDrawn ? "[✓]" : "[x]";
+        Console.WriteLine($"{CardRenderer.Format(context.BriscolaCard)} {tick}");
 
         Console.WriteLine(Messages.Label_Table);
         var trick = context.CurrentTrick;

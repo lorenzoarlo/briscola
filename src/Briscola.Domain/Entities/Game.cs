@@ -26,7 +26,12 @@ public abstract class Game
     public Suit BriscolaSuit { get; private set; }
 
     /// <summary>The trump card. Is null when it's picked up at the end of the game</summary>
-    public Card? BriscolaCard { get; private set; }
+    public Card BriscolaCard { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the briscola card has been drawn
+    /// </summary>
+    public bool BriscolaDrawn { get; private set; } = false;
 
     /// <summary>Current game state.</summary>
     public GameState State { get; private set; } = GameState.WaitingForPlayers;
@@ -39,6 +44,16 @@ public abstract class Game
 
     /// <summary>The trick currently in progress, or null at the beginning</summary>
     public Trick? CurrentTrick => _tricks.LastOrDefault();
+
+    /// <summary>
+    /// Returns the result of the match if it has ended, or NotEnded if the match is still ongoing.
+    /// </summary>
+    public GameResult GameResult => State == GameState.MatchEnd ? Result() : GameResult.NotEnded;
+
+    /// <summary>
+    /// Returns the winning team if the match has ended, or null otherwise.
+    /// </summary>
+    public Team? WinningTeam => State == GameState.MatchEnd ? Teams.OrderByDescending(t => t.Score).First() : null;
 
     /// <summary>
     /// Returns the player whose turn it currently is, or null
@@ -210,11 +225,11 @@ public abstract class Game
     /// <summary>Draws the face-up briscola card.</summary>
     private Card DrawBriscolaCard()
     {
-        if (BriscolaCard is null)
+        if (BriscolaDrawn)
             throw new InvalidOperationException("Briscola card has already been drawn.");
 
         var card = BriscolaCard;
-        BriscolaCard = null;
+        BriscolaDrawn = true;
         return card;
     }
 
@@ -225,6 +240,7 @@ public abstract class Game
     private GameSnapshot Snapshot() => new(
         BriscolaSuit,
         BriscolaCard,
+        BriscolaDrawn,
         _deck.Count,
         _tricks.Select(t => t.AsReadonly()).ToList().AsReadOnly(),
         _teams

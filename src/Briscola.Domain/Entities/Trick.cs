@@ -13,7 +13,7 @@ public class Trick
     private readonly Dictionary<Player, Card?> _cardsPlayed;
 
     /// <summary>Current player index.</summary>
-    private int _currentPlayerIndex = 0;
+    private int _currentPlayerIndex;
 
     /// <summary>Briscola suit for the trick.</summary>
     public Suit BriscolaSuit { get; }
@@ -24,7 +24,7 @@ public class Trick
         // Convert the IEnumerable to a List for easier indexing and management of players during the trick
         _players = [.. players];
         // Initialize the dictionary to track cards played by each player, starting with null for each player since no cards have been played yet
-        _cardsPlayed = _players.ToDictionary(player => player, player => (Card?)null);
+        _cardsPlayed = _players.ToDictionary(player => player, Card? (_) => null);
         BriscolaSuit = briscolaSuit;
     }
 
@@ -56,7 +56,7 @@ public class Trick
     public void PlayCard(Card card) => PlayCard(_players[_currentPlayerIndex], card);
 
     /// <summary>Card played by a player.</summary>
-    public Card? CardOfPlayer(Player player) => _cardsPlayed.TryGetValue(player, out var card) ? card : null;
+    public Card? CardOfPlayer(Player player) => _cardsPlayed.GetValueOrDefault(player);
 
     /// <summary>Determines the trick winner.</summary>
     public Player Winner()
@@ -67,10 +67,10 @@ public class Trick
         }
 
         // Start by assuming the first player is the winner
-        Player? winner = _players[0];
+        Player winner = _players[0];
         Card winningCard = CardOfPlayer(winner)!;
 
-        for (int i = 1; i < _currentPlayerIndex; i++)
+        for (var i = 1; i < _currentPlayerIndex; i++)
         {
             Player currentPlayer = _players[i];
             Card currentCard = CardOfPlayer(currentPlayer)!;
@@ -95,7 +95,7 @@ public class Trick
         if (first.Suit == second.Suit)
         {
             // we use >= to keep the first player as winner in case of tie (even if in Briscola there are no ties, this is just a safeguard)
-            return first.Value >= second.Value; ;
+            return first.Value >= second.Value; 
         }
         // If the challenger is of the Briscola suit and the opponent is not, the challenger wins
         if (first.Suit == briscolaSuit)

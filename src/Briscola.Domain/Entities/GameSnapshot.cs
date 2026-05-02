@@ -5,7 +5,8 @@ using Briscola.Domain.Enums;
 /// <summary>Read-only snapshot of the game state.</summary>
 public record GameSnapshot(
     Suit BriscolaSuit,
-    Card? BriscolaCard,
+    Card BriscolaCard,
+    bool BriscolaDrawn,
     int DeckCount,
     IReadOnlyList<ImmutableTrick> Tricks,
     IReadOnlyList<Team> Teams
