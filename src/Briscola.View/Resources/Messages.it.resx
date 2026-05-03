@@ -277,4 +277,37 @@ Applicazione terminata. Premi un tasto per uscire...</value>
   <data name="Menu_StartHumanvCpuPreset" xml:space="preserve">
     <value>Inizia contro giocatore casuale </value>
   </data>
+  <data name="ChangeFolder_NewFolder" xml:space="preserve">
+    <value>Inserisci il percorso per la cartella (o lascia vuoto per eliminarlo){0}:</value>
+  </data>
+  <data name="ChangeFolder_FolderCleared" xml:space="preserve">
+    <value>Percorso cartella dimenticato</value>
+  </data>
+  <data name="ChangeFolder_EditPrompt" xml:space="preserve">
+    <value>Modifica percorso della cartella di salvataggio</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>Impostazioni</value>
+  </data>
+  <data name="Settings_LanguageFormat" xml:space="preserve">
+    <value>Lingua (Corrente è {0})</value>
+  </data>
+  <data name="Settings_FolderFormat" xml:space="preserve">
+    <value>Cartella Log Partite (Corrente {0})</value>
+  </data>
+  <data name="Settings_FolderNotSet" xml:space="preserve">
+    <value>non impostata</value>
+  </data>
+  <data name="Menu_Back" xml:space="preserve">
+    <value>Torna indietro</value>
+  </data>
+  <data name="Settings_SelectLanguage" xml:space="preserve">
+    <value>Seleziona una lingua</value>
+  </data>
+  <data name="ChangeFolder_Success" xml:space="preserve">
+    <value>Cartella aggiornata con successo!</value>
+  </data>
+  <data name="ChangeFolder_ErrorFormat" xml:space="preserve">
+    <value>Errore! Impossibile scrivere nella cartella '{0}'. {1}</value>
+  </data>
 </root>

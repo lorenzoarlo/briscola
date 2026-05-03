@@ -86,7 +86,7 @@ public class Trick
         return winner;
     }
 
-    public ImmutableTrick AsReadonly() => new(BriscolaSuit, Players.AsReadOnly(), _cardsPlayed.AsReadOnly(), IsComplete, CurrentPlayer, IsComplete ? Winner() : null);
+    public ImmutableTrick AsReadonly() => new(BriscolaSuit, Players, _cardsPlayed.AsReadOnly(), IsComplete, CurrentPlayer, IsComplete ? Winner() : null);
 
     /// <summary>Determines if a card beats another.</summary>
     public static bool BriscolaBeats(Card first, Card second, Suit briscolaSuit)

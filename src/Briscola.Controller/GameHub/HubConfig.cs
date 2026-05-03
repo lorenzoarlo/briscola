@@ -6,7 +6,7 @@ namespace Briscola.Controller.GameHub;
 public enum AppLanguage
 {
     Default = 1,
-    Italiano = 2
+    Italian = 2
 }
 
 

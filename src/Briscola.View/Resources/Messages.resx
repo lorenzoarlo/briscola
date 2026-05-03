@@ -277,4 +277,37 @@ Application terminated. Press any key to exit...</value>
   <data name="CardFormat" xml:space="preserve">
     <value>{0} of {1}</value>
   </data>
+  <data name="ChangeFolder_NewFolder" xml:space="preserve">
+    <value>Enter new folder path (or leave empty to clear){0}:</value>
+  </data>
+  <data name="ChangeFolder_FolderCleared" xml:space="preserve">
+    <value>Folder path cleared</value>
+  </data>
+  <data name="ChangeFolder_EditPrompt" xml:space="preserve">
+    <value>Edit Game Log Folder</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_LanguageFormat" xml:space="preserve">
+    <value>Language (Current is {0})</value>
+  </data>
+  <data name="Settings_FolderFormat" xml:space="preserve">
+    <value>Game Log Folder (Current {0})</value>
+  </data>
+  <data name="Settings_FolderNotSet" xml:space="preserve">
+    <value>not set</value>
+  </data>
+  <data name="Menu_Back" xml:space="preserve">
+    <value>Go back</value>
+  </data>
+  <data name="Settings_SelectLanguage" xml:space="preserve">
+    <value>Select a Language</value>
+  </data>
+  <data name="ChangeFolder_Success" xml:space="preserve">
+    <value>Folder updated successfully!</value>
+  </data>
+  <data name="ChangeFolder_ErrorFormat" xml:space="preserve">
+    <value>Error! Cannot write to folder '{0}'. {1}</value>
+  </data>
 </root>
