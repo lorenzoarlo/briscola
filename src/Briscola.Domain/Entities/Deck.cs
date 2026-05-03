@@ -9,6 +9,8 @@ public class Deck
     // Shuffle immediately
     private readonly Stack<Card> _cards = new(Shuffle(Create()));
 
+    public const int TotalCards = 40;
+
 
     /// <summary>Number of cards remaining.</summary>
     public int Count => _cards.Count;
@@ -30,8 +32,8 @@ public class Deck
     /// <summary>Creates a standard 40-card deck.</summary>
     public static IEnumerable<Card> Create()
     {
-        var suits = Enum.GetValues(typeof(Suit));
-        var values = Enum.GetValues(typeof(CardValue));
+        var suits = Enum.GetValues<Suit>();
+        var values = Enum.GetValues<CardValue>();
         List<Card> cards = new(suits.Length * values.Length);
 
         // Generate all 40 cards in a standard Briscola deck
