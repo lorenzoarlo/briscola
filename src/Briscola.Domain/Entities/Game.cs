@@ -19,6 +19,11 @@ public abstract class Game
     // List of tricks
     protected List<Trick> _tricks = [];
 
+    /// <summary>
+    /// Read-only view of the tricks played in the match, in order. Each trick is complete and resolved.
+    /// </summary>
+    public IReadOnlyList<Trick> Tricks => _tricks.AsReadOnly();
+
     // Index of the player who leads the current trick
     private int _firstPlayerIndex = 0;
 

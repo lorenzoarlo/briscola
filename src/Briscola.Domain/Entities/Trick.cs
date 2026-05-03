@@ -7,10 +7,10 @@ public class Trick
 {
 
     /// <summary>Players participating in the trick.</summary>
-    private readonly List<Player> _players;
+    public IReadOnlyList<Player> Players { get; }
 
     /// <summary>Cards played by each player.</summary>
-    private readonly Dictionary<Player, Card?> _cardsPlayed;
+    protected readonly Dictionary<Player, Card?> _cardsPlayed;
 
     /// <summary>Current player index.</summary>
     private int _currentPlayerIndex;
@@ -22,16 +22,16 @@ public class Trick
     public Trick(IEnumerable<Player> players, Suit briscolaSuit)
     {
         // Convert the IEnumerable to a List for easier indexing and management of players during the trick
-        _players = [.. players];
+        Players = [.. players];
         // Initialize the dictionary to track cards played by each player, starting with null for each player since no cards have been played yet
-        _cardsPlayed = _players.ToDictionary(player => player, Card? (_) => null);
+        _cardsPlayed = Players.ToDictionary(player => player, Card? (_) => null);
         BriscolaSuit = briscolaSuit;
     }
 
     /// <summary>Plays a card for a player.</summary>
     public void PlayCard(Player player, Card card)
     {
-        if (!player.Equals(_players[_currentPlayerIndex]))
+        if (!player.Equals(Players[_currentPlayerIndex]))
         {
             throw new InvalidOperationException("It's not this player's turn to play.");
         }
@@ -44,7 +44,7 @@ public class Trick
     }
 
     /// <summary>Current player whose turn it is.</summary>
-    public Player? CurrentPlayer => IsComplete ? null : _players[_currentPlayerIndex];
+    public Player? CurrentPlayer => IsComplete ? null : Players[_currentPlayerIndex];
 
     /// <summary>Whether the trick is complete.</summary>
     public bool IsComplete => _cardsPlayed.Values.All(c => c is not null);
@@ -53,7 +53,7 @@ public class Trick
     public IReadOnlyList<Card> TrickCards => _cardsPlayed.Values.Where(c => c is not null).Select(c => c!).ToList().AsReadOnly();
 
     /// <summary>Plays a card for the current player.</summary>
-    public void PlayCard(Card card) => PlayCard(_players[_currentPlayerIndex], card);
+    public void PlayCard(Card card) => PlayCard(Players[_currentPlayerIndex], card);
 
     /// <summary>Card played by a player.</summary>
     public Card? CardOfPlayer(Player player) => _cardsPlayed.GetValueOrDefault(player);
@@ -67,12 +67,12 @@ public class Trick
         }
 
         // Start by assuming the first player is the winner
-        Player winner = _players[0];
+        Player winner = Players[0];
         Card winningCard = CardOfPlayer(winner)!;
 
         for (var i = 1; i < _currentPlayerIndex; i++)
         {
-            Player currentPlayer = _players[i];
+            Player currentPlayer = Players[i];
             Card currentCard = CardOfPlayer(currentPlayer)!;
 
             // If the current card beats the winning card according to Briscola rules, update the winner and winning card
@@ -86,7 +86,7 @@ public class Trick
         return winner;
     }
 
-    public ImmutableTrick AsReadonly() => new(BriscolaSuit, _players.AsReadOnly(), _cardsPlayed.AsReadOnly(), IsComplete, CurrentPlayer, IsComplete ? Winner() : null);
+    public ImmutableTrick AsReadonly() => new(BriscolaSuit, Players.AsReadOnly(), _cardsPlayed.AsReadOnly(), IsComplete, CurrentPlayer, IsComplete ? Winner() : null);
 
     /// <summary>Determines if a card beats another.</summary>
     public static bool BriscolaBeats(Card first, Card second, Suit briscolaSuit)
@@ -95,7 +95,7 @@ public class Trick
         if (first.Suit == second.Suit)
         {
             // we use >= to keep the first player as winner in case of tie (even if in Briscola there are no ties, this is just a safeguard)
-            return first.Value >= second.Value; 
+            return first.Value >= second.Value;
         }
         // If the challenger is of the Briscola suit and the opponent is not, the challenger wins
         if (first.Suit == briscolaSuit)

@@ -1,23 +1,31 @@
+using System.Text.Json;
 using Briscola.Domain.Entities;
 using Briscola.Persistence.Entities;
+using Briscola.Persistence.Extension;
 
 namespace Briscola.Persistence;
 
-/// <summary>
-/// Handles serialization and deserialization of game state for saving and loading matches
-/// </summary>
 public class GameSerializer
 {
-    public static GameLog Write(Game game)
+    // Constant for extension
+    public const string FileExtension = ".json";
+
+    /// <summary>
+    /// Format for the file name of the game log, using folder, identifier and extension
+    /// </summary>
+    public static readonly Func<string, string, string, string> FileNameFormat =
+            (folder, identifier, extension) => $"{folder}/gamelog-{identifier}{extension}";
+
+
+    /// <summary>
+    /// Writes the game log to a file in the specified folder
+    /// </summary>
+    public static GameLog Write(Game game, string folder)
     {
-        var teams = game.Teams.Select(t => new TeamLog(t.Id, [.. t.Players.Select(p => new PlayerLog(p.Id, p.Name, t.Id))], t.Score))
-            .ToList();
-        var players = game.Teams.SelectMany(t => t.Players)
-                                .Select(p => new PlayerLog(p.Id, p.Name, p.TeamId!))
-                                .ToList();
-        var timestamp = DateTime.Now;
-        var briscolaCard = game.BriscolaCard;
-        var result = game.GameResult;
-        return new GameLog(teams, players, timestamp, briscolaCard, result);
+        var log = game.ToGameLog();
+        var json = JsonSerializer.Serialize(log);
+        var path = FileNameFormat(folder, log.Timestamp.ToString("yyyyMMddHHmmss"), FileExtension);
+        File.WriteAllText(path, json);
+        return log;
     }
 }

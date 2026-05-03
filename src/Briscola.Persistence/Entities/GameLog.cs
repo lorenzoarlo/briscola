@@ -11,4 +11,6 @@ namespace Briscola.Persistence.Entities;
 /// <param name="Timestamp">Date and time when the match was played</param>
 /// <param name="BriscolaCard">The card that was designated as the Briscola for the match</param>
 /// <param name="WinningTeam">The team that won the match</param>
-public record GameLog(List<TeamLog> Teams, List<PlayerLog> Players, DateTime Timestamp, Card BriscolaCard, GameResult GameResult);
+public record GameLog(List<TeamLog> Teams, List<PlayerLog> Players,
+    DateTime Timestamp, Card BriscolaCard,
+    List<TrickLog> Tricks, GameResult GameResult);
